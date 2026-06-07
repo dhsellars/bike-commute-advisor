@@ -1,5 +1,5 @@
 {
-  "last_notification": "\ud83c\udf24\ufe0f Mostly good conditions.\n\nNext occurrences for 07:00\u201320:00:\n7am  \ud83d\udfe2 good   ( 0.0,  0%,   56\u00b0F) [Mon]\n8am  \ud83d\udfe2 good   ( 0.0,  0%,   59\u00b0F) [Mon]\n9am  \ud83d\udfe2 good   ( 0.0,  0%,   63\u00b0F) [Mon]\n10am \ud83d\udfe2 good   ( 0.0,  0%,   67\u00b0F) [Mon]\n11am \ud83d\udfe2 good   ( 0.0,  0%,   71\u00b0F) [Mon]\n12pm \ud83d\udfe2 good   ( 0.0,  0%,   74\u00b0F) [Mon]\n1pm  \ud83d\udfe2 good   ( 0.0,  0%,   77\u00b0F) [Mon]\n2pm  \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Mon]\n3pm  \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Mon]\n4pm  \ud83d\udfe2 good   ( 0.0,  3%,   78\u00b0F) [Mon]\n5pm  \ud83d\udfe2 good   ( 0.0,  3%,   77\u00b0F) [Mon]\n6pm  \ud83d\udfe1 meh    ( 0.0, 43%,   75\u00b0F) [Mon]\n7pm  \ud83d\udfe1 meh    ( 0.7, 80%,   67\u00b0F) [Mon]\n8pm  \ud83d\udd34 nope   ( 0.9, 83%,   65\u00b0F) [Mon]",
+  "last_notification": "\ud83c\udf24\ufe0f Mostly good conditions.\n\nNext occurrences for 07:00\u201320:00:\n7am  \ud83d\udfe2 good   ( 0.0,  0%,   56\u00b0F) [Mon]\n8am  \ud83d\udfe2 good   ( 0.0,  0%,   59\u00b0F) [Mon]\n9am  \ud83d\udfe2 good   ( 0.0,  0%,   63\u00b0F) [Mon]\n10am \ud83d\udfe2 good   ( 0.0,  0%,   68\u00b0F) [Mon]\n11am \ud83d\udfe2 good   ( 0.0,  0%,   71\u00b0F) [Mon]\n12pm \ud83d\udfe2 good   ( 0.0,  0%,   74\u00b0F) [Mon]\n1pm  \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Mon]\n2pm  \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Mon]\n3pm  \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Mon]\n4pm  \ud83d\udfe2 good   ( 0.0,  3%,   78\u00b0F) [Mon]\n5pm  \ud83d\udfe2 good   ( 0.0,  3%,   78\u00b0F) [Mon]\n6pm  \ud83d\udfe1 meh    ( 0.0, 43%,   74\u00b0F) [Mon]\n7pm  \ud83d\udfe1 meh    ( 0.5, 80%,   67\u00b0F) [Mon]\n8pm  \ud83d\udd34 nope   ( 2.0, 83%,   64\u00b0F) [Mon]",
   "last_snapshot": {
     "hours": {
       "07": {
@@ -7,7 +7,7 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 0,
-        "temp_c": 13.1,
+        "temp_c": 13.3,
         "status": "\ud83d\udfe2 good"
       },
       "08": {
@@ -23,7 +23,7 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 0,
-        "temp_c": 17.2,
+        "temp_c": 17.4,
         "status": "\ud83d\udfe2 good"
       },
       "10": {
@@ -31,7 +31,7 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 0,
-        "temp_c": 19.7,
+        "temp_c": 19.9,
         "status": "\ud83d\udfe2 good"
       },
       "11": {
@@ -39,7 +39,7 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 0,
-        "temp_c": 21.7,
+        "temp_c": 21.8,
         "status": "\ud83d\udfe2 good"
       },
       "12": {
@@ -55,7 +55,7 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 0,
-        "temp_c": 25.0,
+        "temp_c": 25.3,
         "status": "\ud83d\udfe2 good"
       },
       "14": {
@@ -63,7 +63,7 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 0,
-        "temp_c": 25.6,
+        "temp_c": 25.4,
         "status": "\ud83d\udfe2 good"
       },
       "15": {
@@ -71,7 +71,7 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 0,
-        "temp_c": 25.7,
+        "temp_c": 25.5,
         "status": "\ud83d\udfe2 good"
       },
       "16": {
@@ -87,7 +87,7 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 3,
-        "temp_c": 25.2,
+        "temp_c": 25.5,
         "status": "\ud83d\udfe2 good"
       },
       "18": {
@@ -95,23 +95,23 @@
         "dow": "Mon",
         "r_mm": 0.0,
         "pop": 43,
-        "temp_c": 23.7,
+        "temp_c": 23.6,
         "status": "\ud83d\udfe1 meh"
       },
       "19": {
         "iso": "06.08T19:00",
         "dow": "Mon",
-        "r_mm": 0.7,
+        "r_mm": 0.5,
         "pop": 80,
-        "temp_c": 19.2,
+        "temp_c": 19.4,
         "status": "\ud83d\udfe1 meh"
       },
       "20": {
         "iso": "06.08T20:00",
         "dow": "Mon",
-        "r_mm": 0.9,
+        "r_mm": 2.0,
         "pop": 83,
-        "temp_c": 18.1,
+        "temp_c": 17.9,
         "status": "\ud83d\udd34 nope"
       }
     }
