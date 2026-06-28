@@ -1,5 +1,5 @@
 {
-  "last_notification": "\ud83c\udf24\ufe0f Mostly good conditions.\n\nNext occurrences for 07:00\u201320:00:\n7am  \ud83d\udfe2 good   ( 0.0, 38%,   71\u00b0F) [Mon]\n8am  \ud83d\udd34 nope   ( 3.7, 58%,   68\u00b0F) [Mon]\n9am  \ud83d\udfe1 meh    ( 0.2, 73%,   69\u00b0F) [Mon]\n10am \ud83d\udfe2 good   ( 0.3, 38%,   70\u00b0F) [Mon]\n11am \ud83d\udfe2 good   ( 0.0, 15%,   73\u00b0F) [Mon]\n12pm \ud83d\udfe2 good   ( 0.0, 18%,   74\u00b0F) [Mon]\n1pm  \ud83d\udfe2 good   ( 0.0, 35%,   76\u00b0F) [Mon]\n2pm  \ud83d\udfe1 meh    ( 0.0, 45%,   79\u00b0F) [Mon]\n3pm  \ud83d\udfe1 meh    ( 0.0, 50%,   80\u00b0F) [Mon]\n4pm  \ud83d\udfe1 meh    ( 0.0, 45%,   81\u00b0F) [Mon]\n5pm  \ud83d\udfe1 meh    ( 0.0, 50%,   81\u00b0F) [Mon]\n6pm  \ud83d\udfe1 meh    ( 0.0, 60%,   80\u00b0F) [Mon]\n7pm  \ud83d\udfe2 good   ( 0.0, 10%,   90\u00b0F) [Sun]\n8pm  \ud83d\udfe2 good   ( 0.0, 20%,   89\u00b0F) [Sun]",
+  "last_notification": "\ud83c\udf24\ufe0f Mostly good conditions.\n\nNext occurrences for 07:00\u201320:00:\n7am  \ud83d\udfe2 good   ( 0.0, 38%,   71\u00b0F) [Mon]\n8am  \ud83d\udd34 nope   ( 3.7, 58%,   68\u00b0F) [Mon]\n9am  \ud83d\udfe1 meh    ( 0.2, 73%,   69\u00b0F) [Mon]\n10am \ud83d\udfe2 good   ( 0.3, 38%,   70\u00b0F) [Mon]\n11am \ud83d\udfe2 good   ( 0.0, 15%,   73\u00b0F) [Mon]\n12pm \ud83d\udfe2 good   ( 0.0, 18%,   74\u00b0F) [Mon]\n1pm  \ud83d\udfe2 good   ( 0.0, 35%,   76\u00b0F) [Mon]\n2pm  \ud83d\udfe1 meh    ( 0.0, 45%,   79\u00b0F) [Mon]\n3pm  \ud83d\udfe1 meh    ( 0.0, 50%,   80\u00b0F) [Mon]\n4pm  \ud83d\udfe1 meh    ( 0.0, 45%,   81\u00b0F) [Mon]\n5pm  \ud83d\udfe1 meh    ( 0.0, 50%,   81\u00b0F) [Mon]\n6pm  \ud83d\udfe1 meh    ( 0.0, 60%,   80\u00b0F) [Mon]\n7pm  \ud83d\udfe1 meh    ( 0.0, 65%,   79\u00b0F) [Mon]\n8pm  \ud83d\udfe2 good   ( 0.0, 20%,   89\u00b0F) [Sun]",
   "last_snapshot": {
     "hours": {
       "07": {
@@ -99,12 +99,12 @@
         "status": "\ud83d\udfe1 meh"
       },
       "19": {
-        "iso": "06.28T19:00",
-        "dow": "Sun",
+        "iso": "06.29T19:00",
+        "dow": "Mon",
         "r_mm": 0.0,
-        "pop": 10,
-        "temp_c": 32.5,
-        "status": "\ud83d\udfe2 good"
+        "pop": 65,
+        "temp_c": 26.1,
+        "status": "\ud83d\udfe1 meh"
       },
       "20": {
         "iso": "06.28T20:00",
