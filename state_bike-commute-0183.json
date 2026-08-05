@@ -1,5 +1,5 @@
 {
-  "last_notification": "\u2728 All good all day!\n\nNext occurrences for 07:00\u201320:00:\n7am  \ud83d\udfe2 good   ( 0.0,  0%,   66\u00b0F) [Thu]\n8am  \ud83d\udfe2 good   ( 0.0,  0%,   69\u00b0F) [Thu]\n9am  \ud83d\udfe2 good   ( 0.0,  0%,   72\u00b0F) [Thu]\n10am \ud83d\udfe2 good   ( 0.0,  0%,   74\u00b0F) [Thu]\n11am \ud83d\udfe2 good   ( 0.0,  0%,   76\u00b0F) [Thu]\n12pm \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Thu]\n1pm  \ud83d\udfe2 good   ( 0.0,  0%,   79\u00b0F) [Thu]\n2pm  \ud83d\udfe2 good   ( 0.0,  0%,   80\u00b0F) [Thu]\n3pm  \ud83d\udfe2 good   ( 0.0,  0%,   81\u00b0F) [Thu]\n4pm  \ud83d\udfe2 good   ( 0.0,  0%,   81\u00b0F) [Thu]\n5pm  \ud83d\udfe2 good   ( 0.0,  0%,   80\u00b0F) [Thu]\n6pm  \ud83d\udfe2 good   ( 0.0,  0%,   80\u00b0F) [Thu]\n7pm  \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Thu]\n8pm  \ud83d\udfe2 good   ( 0.0, 15%,   83\u00b0F) [Wed]",
+  "last_notification": "\u2728 All good all day!\n\nNext occurrences for 07:00\u201320:00:\n7am  \ud83d\udfe2 good   ( 0.0,  0%,   66\u00b0F) [Thu]\n8am  \ud83d\udfe2 good   ( 0.0,  0%,   69\u00b0F) [Thu]\n9am  \ud83d\udfe2 good   ( 0.0,  0%,   72\u00b0F) [Thu]\n10am \ud83d\udfe2 good   ( 0.0,  0%,   74\u00b0F) [Thu]\n11am \ud83d\udfe2 good   ( 0.0,  0%,   76\u00b0F) [Thu]\n12pm \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Thu]\n1pm  \ud83d\udfe2 good   ( 0.0,  0%,   79\u00b0F) [Thu]\n2pm  \ud83d\udfe2 good   ( 0.0,  0%,   80\u00b0F) [Thu]\n3pm  \ud83d\udfe2 good   ( 0.0,  0%,   81\u00b0F) [Thu]\n4pm  \ud83d\udfe2 good   ( 0.0,  0%,   81\u00b0F) [Thu]\n5pm  \ud83d\udfe2 good   ( 0.0,  0%,   80\u00b0F) [Thu]\n6pm  \ud83d\udfe2 good   ( 0.0,  0%,   80\u00b0F) [Thu]\n7pm  \ud83d\udfe2 good   ( 0.0,  0%,   78\u00b0F) [Thu]\n8pm  \ud83d\udfe2 good   ( 0.0,  0%,   77\u00b0F) [Thu]",
   "last_snapshot": {
     "hours": {
       "07": {
@@ -107,11 +107,11 @@
         "status": "\ud83d\udfe2 good"
       },
       "20": {
-        "iso": "08.05T20:00",
-        "dow": "Wed",
+        "iso": "08.06T20:00",
+        "dow": "Thu",
         "r_mm": 0.0,
-        "pop": 15,
-        "temp_c": 28.5,
+        "pop": 0,
+        "temp_c": 24.8,
         "status": "\ud83d\udfe2 good"
       }
     }
