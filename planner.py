@@ -184,7 +184,12 @@ def make_commute_summary(now_local: datetime, idx: dict) -> dict:
         if vals is None:
             continue
 
-        r_mm, p, t_c, sun = vals
+        if len(vals) >= 4:
+            r_mm, p, t_c, sun = vals
+        else:
+            r_mm, p, t_c = vals
+            sun = 50
+
         temp_f = (t_c * 9 / 5) + 32
         score = 0
         if p <= 20:

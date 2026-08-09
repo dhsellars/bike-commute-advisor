@@ -85,6 +85,19 @@ class VentilationReminderTests(unittest.TestCase):
         self.assertIsNotNone(notification)
         self.assertIn("cool down the house", notification["message"].lower())
 
+    def test_commute_summary_handles_three_value_hourly_weather_tuples(self):
+        now = datetime(2026, 8, 9, 20, 0, tzinfo=timezone.utc)
+        idx = {
+            datetime(2026, 8, 10, 7, 0, tzinfo=timezone.utc): (0.1, 10, 21.0),
+            datetime(2026, 8, 10, 8, 0, tzinfo=timezone.utc): (0.0, 5, 22.0),
+            datetime(2026, 8, 10, 9, 0, tzinfo=timezone.utc): (0.0, 0, 23.0),
+        }
+
+        summary = planner.make_commute_summary(now, idx)
+        self.assertEqual(summary["target_date"], datetime(2026, 8, 10, 0, 0).date())
+        self.assertIn("overall", summary)
+        self.assertIsNotNone(summary["best_hour"])
+
 
 if __name__ == "__main__":
     unittest.main()
