@@ -32,8 +32,14 @@ Every weekday (Monday–Friday):
   - The set of dry hours has changed  
   - (Temperature changes alone do *not* trigger updates)
 
+### **At 8:00 PM**
+- If tomorrow’s forecast is expected to exceed 90°F, a separate Lüften reminder is sent to the ventilation feed to suggest opening the windows and capturing the cool air for morning.
+
+### **During the day after a hot spell**
+- If the day’s high was above 90°F and the temperature later drops below 75°F, another Lüften reminder is sent to prompt you to start ventilating again.
+
 ### **After 5:00 PM**
-- No more notifications for the day  
+- No more commute notifications for the day  
 
 ### **State tracking**
 The tool stores the last-notified dry hours in a small `state.json` file committed to the repository.  
@@ -144,14 +150,15 @@ MAX_RAIN_MM = 0.1
 
 ---
 
-### **5. Push notification topic**
-Choose any topic name you like:
+### **5. Push notification topics**
+Choose any topic name you like for commuting alerts and an optional second topic for Lüften reminders:
 
 ```python
 NTFY_TOPIC = "bike-commute-d-48_68-9_01"
+NTFY_LUFTEN_TOPIC = "bike-commute-luften"
 ```
 
-If you change it, update your ntfy app subscription too.
+If you change them, update your ntfy app subscriptions too.
 
 ---
 

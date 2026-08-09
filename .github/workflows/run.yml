@@ -30,6 +30,7 @@ jobs:
           END_LON: ${{ secrets.END_LON }}
           TIMEZONE: ${{ secrets.TIMEZONE }}
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_LUFTEN_TOPIC: ${{ secrets.NTFY_LUFTEN_TOPIC }}
         run: python planner.py
 
       - name: Commit updated state

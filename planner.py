@@ -1,14 +1,39 @@
 import json
 import requests
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
-from typing import Optional  # <-- add this
+from datetime import datetime, timedelta, timezone, tzinfo
+from typing import Optional
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    class ZoneInfo(tzinfo):
+        def __init__(self, key):
+            self.key = key
+            if key in {"UTC", "Etc/UTC", "Etc/GMT"}:
+                self._tz = timezone.utc
+            else:
+                raise ValueError(f"Unsupported timezone: {key}")
+
+        def utcoffset(self, dt):
+            return self._tz.utcoffset(dt)
+
+        def dst(self, dt):
+            return self._tz.dst(dt)
+
+        def tzname(self, dt):
+            return self._tz.tzname(dt)
+
+        def fromutc(self, dt):
+            return dt.replace(tzinfo=self)
 from config import (
     LAT, LON,
     TIMEZONE, START_HOUR, END_HOUR,
     MAX_RAIN_MM, MAX_POP,
     POP_DELTA_NOTIFY, RAIN_DELTA_NOTIFY, NOTIFY_ON_STATUS_CHANGE,
-    NTFY_URL, STATE_FILE
+    NTFY_URL, NTFY_LUFTEN_URL,
+    LUFTEN_HIGH_TEMP_F_THRESHOLD, LUFTEN_COOL_TEMP_F_THRESHOLD,
+    LUFTEN_EVENING_NOTIFY_HOUR,
+    STATE_FILE
 )
 
 # --------------------------------------------
@@ -17,9 +42,12 @@ from config import (
 def load_state():
     try:
         with open(STATE_FILE, "r") as f:
-            return json.load(f)
+            state = json.load(f)
     except FileNotFoundError:
-        return {"last_notification": None, "last_snapshot": None}
+        state = {"last_notification": None, "last_snapshot": None}
+
+    state.setdefault("ventilation_notifications", {})
+    return state
 
 def save_state(state):
     with open(STATE_FILE, "w") as f:
@@ -29,9 +57,13 @@ def save_state(state):
 # --------------------------------------------
 # Notify
 # --------------------------------------------
-def notify(message):
+def notify(message, ntfy_url=None):
+    target_url = ntfy_url or NTFY_URL
+    if not target_url:
+        return
+
     try:
-        requests.post(NTFY_URL, data=message.encode("utf-8"), timeout=10)
+        requests.post(target_url, data=message.encode("utf-8"), timeout=10)
     except Exception:
         pass
 
@@ -170,6 +202,78 @@ def hour_label(h: int) -> str:
     return label.ljust(4)
 
 
+def collect_daily_temps(idx: dict, target_date) -> list:
+    temps = []
+    for dt, values in idx.items():
+        if dt.date() != target_date:
+            continue
+        if START_HOUR <= dt.hour <= END_HOUR:
+            temps.append((values[2] * 9 / 5) + 32)
+    return temps
+
+
+def get_hourly_value(idx: dict, dt: datetime):
+    if dt in idx:
+        return idx[dt]
+
+    for candidate_dt, values in idx.items():
+        if (
+            candidate_dt.year == dt.year
+            and candidate_dt.month == dt.month
+            and candidate_dt.day == dt.day
+            and candidate_dt.hour == dt.hour
+        ):
+            return values
+
+    return None
+
+
+def get_luften_reminders(now_local: datetime, idx: dict, state: dict) -> list:
+    reminders = []
+    notifications = state.get("ventilation_notifications", {}) or {}
+    now_local = now_local.astimezone(ZoneInfo(TIMEZONE)) if now_local.tzinfo else now_local.replace(tzinfo=ZoneInfo(TIMEZONE))
+
+    current_hour_dt = now_local.replace(minute=0, second=0, microsecond=0)
+
+    if now_local.hour == LUFTEN_EVENING_NOTIFY_HOUR:
+        tomorrow = now_local.date() + timedelta(days=1)
+        tomorrow_temps = collect_daily_temps(idx, tomorrow)
+        if tomorrow_temps and max(tomorrow_temps) > LUFTEN_HIGH_TEMP_F_THRESHOLD:
+            evening_key = f"evening:{tomorrow.isoformat()}"
+            if not notifications.get(evening_key):
+                reminders.append({
+                    "kind": "evening",
+                    "key": evening_key,
+                    "message": (
+                        f"Lüften reminder: tomorrow is expected to hit {max(tomorrow_temps):.0f}°F, "
+                        "so open the windows tonight at 8pm and capture the cool air for the morning."
+                    ),
+                })
+
+    if START_HOUR <= now_local.hour <= END_HOUR:
+        current_vals = get_hourly_value(idx, current_hour_dt)
+        if current_vals is not None:
+            current_temp_f = (current_vals[2] * 9 / 5) + 32
+            today_temps = collect_daily_temps(idx, now_local.date())
+            if (
+                today_temps
+                and max(today_temps) > LUFTEN_HIGH_TEMP_F_THRESHOLD
+                and current_temp_f < LUFTEN_COOL_TEMP_F_THRESHOLD
+            ):
+                cooldown_key = f"cooldown:{now_local.date().isoformat()}"
+                if not notifications.get(cooldown_key):
+                    reminders.append({
+                        "kind": "cooldown",
+                        "key": cooldown_key,
+                        "message": (
+                            f"Lüften reminder: it has cooled down to {current_temp_f:.0f}°F today "
+                            "after a hotter spell, so start Lüften again now."
+                        ),
+                    })
+
+    return reminders
+
+
 # --------------------------------------------
 # Main
 # --------------------------------------------
@@ -224,10 +328,20 @@ def main():
         "\n".join(hours_list) if hours_list else "(none available)"
     )
 
+    should_save = False
     if should_notify(state.get("last_snapshot"), snapshot):
         notify(message)
         state["last_notification"] = message
         state["last_snapshot"] = snapshot
+        should_save = True
+
+    reminders = get_luften_reminders(now_local, dt_index, state)
+    for reminder in reminders:
+        notify(reminder["message"], ntfy_url=NTFY_LUFTEN_URL)
+        state.setdefault("ventilation_notifications", {})[reminder["key"]] = True
+        should_save = True
+
+    if should_save:
         save_state(state)
 
 
