@@ -37,6 +37,28 @@ class VentilationReminderTests(unittest.TestCase):
         self.assertEqual(reminders[0]["kind"], "cooldown")
         self.assertIn("start Lüften", reminders[0]["message"])
 
+    def test_commute_notification_is_created_for_pleasant_tomorrow(self):
+        now = datetime(2026, 8, 9, 20, 0, tzinfo=timezone.utc)
+        idx = {
+            datetime(2026, 8, 10, 7, 0, tzinfo=timezone.utc): (0.0, 5, 21.0, 20.0),
+            datetime(2026, 8, 10, 8, 0, tzinfo=timezone.utc): (0.0, 10, 22.0, 25.0),
+            datetime(2026, 8, 10, 9, 0, tzinfo=timezone.utc): (0.0, 15, 23.0, 30.0),
+        }
+
+        notification = planner.get_commute_notification(now, idx, {"last_commute_notification_date": None})
+        self.assertIsNotNone(notification)
+        self.assertIn("pleasant", notification["message"].lower())
+        self.assertEqual(notification["target_date"], datetime(2026, 8, 10, 0, 0).date())
+
+    def test_commute_notification_is_skipped_if_already_sent_today(self):
+        now = datetime(2026, 8, 9, 20, 0, tzinfo=timezone.utc)
+        idx = {
+            datetime(2026, 8, 10, 7, 0, tzinfo=timezone.utc): (0.0, 5, 21.0, 20.0),
+        }
+
+        notification = planner.get_commute_notification(now, idx, {"last_commute_notification_date": "2026-08-10"})
+        self.assertIsNone(notification)
+
 
 if __name__ == "__main__":
     unittest.main()

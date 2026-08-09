@@ -161,32 +161,109 @@ def make_snapshot(now_local: datetime, idx: dict) -> dict:
     return {"hours": hours_map}
 
 
-def should_notify(prev_snapshot: Optional[dict], new_snapshot: dict) -> bool:
-    if not prev_snapshot:
-        return True
+def make_commute_summary(now_local: datetime, idx: dict) -> dict:
+    tz = ZoneInfo(TIMEZONE)
+    tomorrow = (now_local + timedelta(days=1)).date()
+    pleasant_hours = []
 
-    prev_hours = prev_snapshot.get("hours", {}) or {}
-    new_hours = new_snapshot.get("hours", {}) or {}
+    for h in range(START_HOUR, END_HOUR + 1):
+        target_dt = next_occurrence_of_hour(now_local, h).astimezone(tz)
+        if target_dt.date() != tomorrow:
+            continue
 
-    if set(prev_hours.keys()) != set(new_hours.keys()):
-        return True
+        vals = get_hourly_value(idx, target_dt)
+        if vals is None:
+            continue
 
-    for h in new_hours:
-        p = prev_hours.get(h)
-        n = new_hours[h]
-        if p is None:
-            return True
+        r_mm, p, t_c, sun = vals
+        temp_f = (t_c * 9 / 5) + 32
+        score = 0
+        if p <= 20:
+            score += 2
+        elif p <= 40:
+            score += 1
+        if r_mm <= 0.5:
+            score += 2
+        elif r_mm <= 1.5:
+            score += 1
+        if sun >= 50:
+            score += 2
+        elif sun >= 25:
+            score += 1
+        if 60 <= temp_f <= 80:
+            score += 2
+        elif 50 <= temp_f <= 90:
+            score += 1
 
-        if NOTIFY_ON_STATUS_CHANGE and p["status"] != n["status"]:
-            return True
+        pleasant_hours.append({
+            "hour": h,
+            "temp_f": round(temp_f, 1),
+            "pop": int(p),
+            "rain_mm": round(r_mm, 1),
+            "sun": int(sun),
+            "score": score,
+            "pleasant": score >= 4,
+        })
 
-        if abs(n["pop"] - p["pop"]) >= POP_DELTA_NOTIFY:
-            return True
+    pleasant_count = sum(1 for entry in pleasant_hours if entry["pleasant"])
+    best_hour = max(pleasant_hours, key=lambda entry: (entry["pleasant"], entry["score"], -entry["pop"]), default=None)
 
-        if abs(n["r_mm"] - p["r_mm"]) >= RAIN_DELTA_NOTIFY:
-            return True
+    if not pleasant_hours:
+        overall = "uncertain"
+        summary_text = "No commute forecast was available for tomorrow."
+    elif pleasant_count >= 3:
+        overall = "pleasant"
+        summary_text = "Tomorrow looks pleasant for a bike commute."
+    elif pleasant_count >= 1:
+        overall = "mixed"
+        summary_text = "Tomorrow is a mixed bike commute day."
+    else:
+        overall = "not pleasant"
+        summary_text = "Tomorrow looks unpleasant for a bike commute."
 
-    return False
+    return {
+        "target_date": tomorrow,
+        "overall": overall,
+        "summary": summary_text,
+        "pleasant_hours": pleasant_hours,
+        "best_hour": best_hour,
+    }
+
+
+def get_commute_notification(now_local: datetime, idx: dict, state: dict) -> Optional[dict]:
+    now_local = now_local.astimezone(ZoneInfo(TIMEZONE)) if now_local.tzinfo else now_local.replace(tzinfo=ZoneInfo(TIMEZONE))
+
+    if now_local.hour != 20:
+        return None
+
+    last_sent = state.get("last_commute_notification_date")
+    summary = make_commute_summary(now_local, idx)
+    if last_sent == summary["target_date"].isoformat():
+        return None
+
+    target_date = summary["target_date"]
+    best_hour = summary["best_hour"]
+    if not best_hour:
+        return None
+
+    if summary["overall"] == "pleasant":
+        message = (
+            f"Bike commute: {summary['summary']} "
+            f"Best window is around {hour_label(best_hour['hour'])} with {best_hour['temp_f']:.0f}°F, "
+            f"{best_hour['pop']}% rain chance, and {best_hour['sun']}% sun."
+        )
+    else:
+        message = (
+            f"Bike commute: {summary['summary']} "
+            f"Best window is around {hour_label(best_hour['hour'])} with {best_hour['temp_f']:.0f}°F, "
+            f"{best_hour['pop']}% rain chance, and {best_hour['sun']}% sun."
+        )
+
+    return {
+        "kind": "commute",
+        "message": message,
+        "target_date": target_date,
+    }
 
 
 def hour_label(h: int) -> str:
@@ -284,55 +361,12 @@ def main():
     weather = get_weather_localtime()
     dt_index = build_local_dt_index(weather, TIMEZONE)
 
-    snapshot = make_snapshot(now_local, dt_index)
-
-    hours_list = []
-    good = borderline = bad = 0
-
-    for h in sorted(snapshot["hours"].keys()):
-        entry = snapshot["hours"][h]
-        status = entry["status"]
-        status_fixed = format_status(status, word_width=6)
-
-        r_mm = entry["r_mm"]
-        p = entry["pop"]
-        t_c = entry["temp_c"]
-        t_f = (t_c * 9/5) + 32
-        dow = entry["dow"]
-
-        if status.startswith("🟢"):
-            good += 1
-        elif status.startswith("🟡"):
-            borderline += 1
-        else:
-            bad += 1
-
-        hours_list.append(
-            f"{hour_label(int(h))} {status_fixed} ({r_mm:4.1f},{p:3d}%, {t_f:4.0f}°F) [{dow}]"
-        )
-
-    if good == 0 and borderline == 0:
-        summary = "🚫 No good travel times."
-    elif good > 0 and bad == 0:
-        summary = "✨ All good all day!"
-    elif good > 0:
-        summary = "🌤️ Mostly good conditions."
-    elif borderline > 0:
-        summary = "🌦️ Mixed conditions — choose wisely."
-    else:
-        summary = "🌧️ Rain likely."
-
-    message = summary + "\n\nNext occurrences for {:02}:00–{:02}:00:\n{}".format(
-        START_HOUR,
-        END_HOUR,
-        "\n".join(hours_list) if hours_list else "(none available)"
-    )
-
     should_save = False
-    if should_notify(state.get("last_snapshot"), snapshot):
-        notify(message)
-        state["last_notification"] = message
-        state["last_snapshot"] = snapshot
+    commute_notification = get_commute_notification(now_local, dt_index, state)
+    if commute_notification:
+        notify(commute_notification["message"])
+        state["last_notification"] = commute_notification["message"]
+        state["last_commute_notification_date"] = commute_notification["target_date"].isoformat()
         should_save = True
 
     reminders = get_luften_reminders(now_local, dt_index, state)
