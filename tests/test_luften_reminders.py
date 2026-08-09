@@ -59,6 +59,32 @@ class VentilationReminderTests(unittest.TestCase):
         notification = planner.get_commute_notification(now, idx, {"last_commute_notification_date": "2026-08-10"})
         self.assertIsNone(notification)
 
+    def test_evening_weather_report_includes_hourly_summary_for_tomorrow(self):
+        now = datetime(2026, 8, 9, 20, 0, tzinfo=timezone.utc)
+        idx = {
+            datetime(2026, 8, 10, 8, 0, tzinfo=timezone.utc): (0.1, 10, 24.0),
+            datetime(2026, 8, 10, 9, 0, tzinfo=timezone.utc): (0.0, 5, 27.0),
+            datetime(2026, 8, 10, 17, 0, tzinfo=timezone.utc): (0.0, 0, 31.0),
+        }
+
+        notification = planner.get_evening_weather_report(now, idx, {"last_evening_weather_date": None})
+        self.assertIsNotNone(notification)
+        self.assertIn("tomorrow", notification["message"].lower())
+        self.assertIn("8am", notification["message"])
+        self.assertIn("5pm", notification["message"])
+        self.assertIn("10%", notification["message"])
+
+    def test_hot_tomorrow_uses_cooling_message(self):
+        now = datetime(2026, 8, 9, 20, 0, tzinfo=timezone.utc)
+        idx = {
+            datetime(2026, 8, 10, 12, 0, tzinfo=timezone.utc): (0.0, 0, 31.0),
+            datetime(2026, 8, 10, 16, 0, tzinfo=timezone.utc): (0.0, 0, 32.0),
+        }
+
+        notification = planner.get_evening_weather_report(now, idx, {"last_evening_weather_date": None})
+        self.assertIsNotNone(notification)
+        self.assertIn("cool down the house", notification["message"].lower())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -33,10 +33,12 @@ Every weekday (Monday–Friday):
   - (Temperature changes alone do *not* trigger updates)
 
 ### **At 8:00 PM**
-- If tomorrow’s forecast is expected to exceed 90°F, a separate Lüften reminder is sent to the ventilation feed to suggest opening the windows and capturing the cool air for morning.
+- Checks the weather for tomorrow and sends a summary of the hourly forecast from 8:00 AM through 5:00 PM, including rain likelihood and temperature.
+- If tomorrow’s high is expected to exceed 88°F, the message also tells you to cool the house down as much as possible tomorrow.
+- If tomorrow is hot enough, a separate Lüften reminder is also sent to the ventilation feed to suggest opening the windows and capturing the cool air for morning.
 
 ### **During the day after a hot spell**
-- If the day’s high was above 90°F and the temperature later drops below 75°F, another Lüften reminder is sent to prompt you to start ventilating again.
+- If the day’s high was above 88°F and the temperature later drops below 77°F, another Lüften reminder is sent to prompt you to start ventilating again.
 
 ### **After 5:00 PM**
 - No more commute notifications for the day  
@@ -150,7 +152,21 @@ MAX_RAIN_MM = 0.1
 
 ---
 
-### **5. Push notification topics**
+### **5. Weather report thresholds and message text**
+You can quickly adjust the behavior from [config.py](config.py):
+
+```python
+WEATHER_REPORT_START_HOUR = 8
+WEATHER_REPORT_END_HOUR = 17
+WEATHER_REPORT_NOTIFY_HOUR = 20
+
+HOT_HIGH_TEMP_F_THRESHOLD = 88.0
+HOT_COOL_TEMP_F_THRESHOLD = 77.0
+```
+
+If you want to change the wording of the notification, update the message construction in [planner.py](planner.py).
+
+### **6. Push notification topics**
 Choose any topic name you like for commuting alerts and an optional second topic for Lüften reminders:
 
 ```python

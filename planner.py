@@ -25,14 +25,23 @@ except ImportError:
 
         def fromutc(self, dt):
             return dt.replace(tzinfo=self)
+
+
+def get_timezone(tz_name: str):
+    try:
+        return ZoneInfo(tz_name)
+    except Exception:
+        if tz_name in {"UTC", "Etc/UTC", "Etc/GMT"}:
+            return timezone.utc
+        raise
 from config import (
     LAT, LON,
     TIMEZONE, START_HOUR, END_HOUR,
     MAX_RAIN_MM, MAX_POP,
     POP_DELTA_NOTIFY, RAIN_DELTA_NOTIFY, NOTIFY_ON_STATUS_CHANGE,
     NTFY_URL, NTFY_LUFTEN_URL,
-    LUFTEN_HIGH_TEMP_F_THRESHOLD, LUFTEN_COOL_TEMP_F_THRESHOLD,
-    LUFTEN_EVENING_NOTIFY_HOUR,
+    HOT_HIGH_TEMP_F_THRESHOLD, HOT_COOL_TEMP_F_THRESHOLD,
+    WEATHER_REPORT_NOTIFY_HOUR, WEATHER_REPORT_START_HOUR, WEATHER_REPORT_END_HOUR,
     STATE_FILE
 )
 
@@ -101,7 +110,7 @@ def build_local_dt_index(weather_json, tz: str):
     pop = weather_json["hourly"]["precipitation_probability"]
     temp = weather_json["hourly"]["temperature_2m"]
 
-    z = ZoneInfo(tz)
+    z = get_timezone(tz)
     idx = {}
     for t, r_mm, p, t_c in zip(times, rain, pop, temp):
         dt = datetime.fromisoformat(t)
@@ -138,7 +147,7 @@ def format_status(status: str, word_width: int = 6) -> str:
 
 def make_snapshot(now_local: datetime, idx: dict) -> dict:
     hours_map = {}
-    tz = ZoneInfo(TIMEZONE)
+    tz = get_timezone(TIMEZONE)
 
     for h in range(START_HOUR, END_HOUR + 1):
         target_dt = next_occurrence_of_hour(now_local, h).astimezone(tz)
@@ -162,7 +171,7 @@ def make_snapshot(now_local: datetime, idx: dict) -> dict:
 
 
 def make_commute_summary(now_local: datetime, idx: dict) -> dict:
-    tz = ZoneInfo(TIMEZONE)
+    tz = get_timezone(TIMEZONE)
     tomorrow = (now_local + timedelta(days=1)).date()
     pleasant_hours = []
 
@@ -231,7 +240,7 @@ def make_commute_summary(now_local: datetime, idx: dict) -> dict:
 
 
 def get_commute_notification(now_local: datetime, idx: dict, state: dict) -> Optional[dict]:
-    now_local = now_local.astimezone(ZoneInfo(TIMEZONE)) if now_local.tzinfo else now_local.replace(tzinfo=ZoneInfo(TIMEZONE))
+    now_local = now_local.astimezone(get_timezone(TIMEZONE)) if now_local.tzinfo else now_local.replace(tzinfo=get_timezone(TIMEZONE))
 
     if now_local.hour != 20:
         return None
@@ -305,17 +314,71 @@ def get_hourly_value(idx: dict, dt: datetime):
     return None
 
 
+def build_weather_report_lines(now_local: datetime, idx: dict) -> list:
+    tz = get_timezone(TIMEZONE)
+    tomorrow = (now_local + timedelta(days=1)).date()
+    lines = []
+
+    for hour in range(WEATHER_REPORT_START_HOUR, WEATHER_REPORT_END_HOUR + 1):
+        target_dt = next_occurrence_of_hour(now_local, hour).astimezone(tz)
+        if target_dt.date() != tomorrow:
+            continue
+
+        vals = get_hourly_value(idx, target_dt)
+        if vals is None:
+            continue
+
+        r_mm, p, t_c = vals[:3]
+        temp_f = (t_c * 9 / 5) + 32
+        lines.append(f"{hour_label(hour)} {int(p)}% rain, {temp_f:.0f}°F")
+
+    return lines
+
+
+def get_evening_weather_report(now_local: datetime, idx: dict, state: dict) -> Optional[dict]:
+    now_local = now_local.astimezone(get_timezone(TIMEZONE)) if now_local.tzinfo else now_local.replace(tzinfo=get_timezone(TIMEZONE))
+
+    if now_local.hour != WEATHER_REPORT_NOTIFY_HOUR:
+        return None
+
+    last_sent = state.get("last_evening_weather_date")
+    tomorrow = now_local.date() + timedelta(days=1)
+    if last_sent == tomorrow.isoformat():
+        return None
+
+    hourly_lines = build_weather_report_lines(now_local, idx)
+    if not hourly_lines:
+        return None
+
+    tomorrow_temps = collect_daily_temps(idx, tomorrow)
+    high_temp_f = max(tomorrow_temps) if tomorrow_temps else None
+    summary = "; ".join(hourly_lines)
+    message = (
+        f"Tomorrow's weather from {hour_label(WEATHER_REPORT_START_HOUR)} to {hour_label(WEATHER_REPORT_END_HOUR)}: {summary}."
+    )
+    if high_temp_f is not None and high_temp_f > HOT_HIGH_TEMP_F_THRESHOLD:
+        message += (
+            f" Tomorrow's high is expected to reach {high_temp_f:.0f}°F, so cool down the house as much as possible tomorrow."
+        )
+
+    return {
+        "kind": "weather_report",
+        "message": message,
+        "target_date": tomorrow,
+    }
+
+
 def get_luften_reminders(now_local: datetime, idx: dict, state: dict) -> list:
     reminders = []
     notifications = state.get("ventilation_notifications", {}) or {}
-    now_local = now_local.astimezone(ZoneInfo(TIMEZONE)) if now_local.tzinfo else now_local.replace(tzinfo=ZoneInfo(TIMEZONE))
+    now_local = now_local.astimezone(get_timezone(TIMEZONE)) if now_local.tzinfo else now_local.replace(tzinfo=get_timezone(TIMEZONE))
 
     current_hour_dt = now_local.replace(minute=0, second=0, microsecond=0)
 
-    if now_local.hour == LUFTEN_EVENING_NOTIFY_HOUR:
+    if now_local.hour == WEATHER_REPORT_NOTIFY_HOUR:
         tomorrow = now_local.date() + timedelta(days=1)
         tomorrow_temps = collect_daily_temps(idx, tomorrow)
-        if tomorrow_temps and max(tomorrow_temps) > LUFTEN_HIGH_TEMP_F_THRESHOLD:
+        if tomorrow_temps and max(tomorrow_temps) > HOT_HIGH_TEMP_F_THRESHOLD:
             evening_key = f"evening:{tomorrow.isoformat()}"
             if not notifications.get(evening_key):
                 reminders.append({
@@ -334,8 +397,8 @@ def get_luften_reminders(now_local: datetime, idx: dict, state: dict) -> list:
             today_temps = collect_daily_temps(idx, now_local.date())
             if (
                 today_temps
-                and max(today_temps) > LUFTEN_HIGH_TEMP_F_THRESHOLD
-                and current_temp_f < LUFTEN_COOL_TEMP_F_THRESHOLD
+                and max(today_temps) > HOT_HIGH_TEMP_F_THRESHOLD
+                and current_temp_f < HOT_COOL_TEMP_F_THRESHOLD
             ):
                 cooldown_key = f"cooldown:{now_local.date().isoformat()}"
                 if not notifications.get(cooldown_key):
@@ -356,7 +419,7 @@ def get_luften_reminders(now_local: datetime, idx: dict, state: dict) -> list:
 # --------------------------------------------
 def main():
     state = load_state()
-    now_local = datetime.now(ZoneInfo(TIMEZONE))
+    now_local = datetime.now(get_timezone(TIMEZONE))
 
     weather = get_weather_localtime()
     dt_index = build_local_dt_index(weather, TIMEZONE)
@@ -367,6 +430,12 @@ def main():
         notify(commute_notification["message"])
         state["last_notification"] = commute_notification["message"]
         state["last_commute_notification_date"] = commute_notification["target_date"].isoformat()
+        should_save = True
+
+    evening_report = get_evening_weather_report(now_local, dt_index, state)
+    if evening_report:
+        notify(evening_report["message"])
+        state["last_evening_weather_date"] = evening_report["target_date"].isoformat()
         should_save = True
 
     reminders = get_luften_reminders(now_local, dt_index, state)
