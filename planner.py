@@ -427,14 +427,14 @@ def main():
     should_save = False
     commute_notification = get_commute_notification(now_local, dt_index, state)
     if commute_notification:
-        notify(commute_notification["message"])
+        notify(commute_notification["message"], ntfy_url=NTFY_URL)
         state["last_notification"] = commute_notification["message"]
         state["last_commute_notification_date"] = commute_notification["target_date"].isoformat()
         should_save = True
 
     evening_report = get_evening_weather_report(now_local, dt_index, state)
     if evening_report:
-        notify(evening_report["message"])
+        notify(evening_report["message"], ntfy_url=NTFY_URL)
         state["last_evening_weather_date"] = evening_report["target_date"].isoformat()
         should_save = True
 
