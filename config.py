@@ -6,10 +6,10 @@ LON = float(os.environ["START_LON"])
 
 TIMEZONE = os.environ["TIMEZONE"]
 
-NTFY_TOPIC = os.environ["NTFY_TOPIC"]
+NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "BIKEWEATHER_0183")
 NTFY_URL = f"https://ntfy.sh/{NTFY_TOPIC}"
 
-NTFY_LUFTEN_TOPIC = os.environ.get("NTFY_LUFTEN_TOPIC", NTFY_TOPIC)
+NTFY_LUFTEN_TOPIC = os.environ.get("NTFY_LUFTEN_TOPIC", "LUEFTENWEATHER_0183")
 NTFY_LUFTEN_URL = f"https://ntfy.sh/{NTFY_LUFTEN_TOPIC}" if NTFY_LUFTEN_TOPIC else None
 
 # Public config (safe to commit)
