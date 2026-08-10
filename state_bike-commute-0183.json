@@ -117,7 +117,8 @@
     }
   },
   "ventilation_notifications": {
-    "evening:2026-08-10": true
+    "evening:2026-08-10": true,
+    "cooldown:2026-08-10": true
   },
   "last_commute_notification_date": "2026-08-10",
   "last_evening_weather_date": "2026-08-10"
