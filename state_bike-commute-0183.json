@@ -1,5 +1,5 @@
 {
-  "last_notification": "Bike commute: Tomorrow looks pleasant for a bike commute. Best window is around 3pm  with 64\u00b0F, 18% rain chance, and 50% sun.",
+  "last_notification": "Bike commute: Tomorrow looks pleasant for a bike commute. Best window is around 11am with 71\u00b0F, 0% rain chance, and 50% sun.",
   "last_snapshot": {
     "hours": {
       "07": {
@@ -123,6 +123,6 @@
     "cooldown:2026-08-13": true,
     "evening:2026-08-14": true
   },
-  "last_commute_notification_date": "2026-08-25",
-  "last_evening_weather_date": "2026-08-25"
+  "last_commute_notification_date": "2026-08-26",
+  "last_evening_weather_date": "2026-08-26"
 }
